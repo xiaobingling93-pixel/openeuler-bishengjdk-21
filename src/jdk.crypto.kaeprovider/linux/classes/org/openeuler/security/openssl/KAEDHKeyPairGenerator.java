@@ -57,6 +57,7 @@ public class KAEDHKeyPairGenerator
     private int lSize;
     private SecureRandom random;
 
+    @SuppressWarnings("this-escape")
     public KAEDHKeyPairGenerator() {
         super();
         initialize(DEF_DH_KEY_SIZE, null);

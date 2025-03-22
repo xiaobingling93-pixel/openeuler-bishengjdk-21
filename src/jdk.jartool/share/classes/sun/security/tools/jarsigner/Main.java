@@ -1236,13 +1236,13 @@ public class Main {
             if ((legacyAlg & 8) == 8) {
                 warnings.add(String.format(
                         rb.getString("The.1.signing.key.has.a.keysize.of.2.which.is.considered.a.security.risk..This.key.size.will.be.disabled.in.a.future.update."),
-                        KeyUtil.fullDisplayAlgName(privateKey), KeyUtil.getKeySize(privateKey)));
+                        KeyUtil.fullDisplayAlgName(privateKey, rb), KeyUtil.getKeySize(privateKey)));
             }
 
             if ((disabledAlg & 8) == 8) {
                 errors.add(String.format(
                         rb.getString("The.1.signing.key.has.a.keysize.of.2.which.is.considered.a.security.risk.and.is.disabled."),
-                        KeyUtil.fullDisplayAlgName(privateKey), KeyUtil.getKeySize(privateKey)));
+                        KeyUtil.fullDisplayAlgName(privateKey, rb), KeyUtil.getKeySize(privateKey)));
             }
         } else {
             if ((legacyAlg & 1) != 0) {
@@ -1266,7 +1266,7 @@ public class Main {
             if ((legacyAlg & 8) == 8) {
                 warnings.add(String.format(
                         rb.getString("The.1.signing.key.has.a.keysize.of.2.which.is.considered.a.security.risk..This.key.size.will.be.disabled.in.a.future.update."),
-                        KeyUtil.fullDisplayAlgName(weakPublicKey), KeyUtil.getKeySize(weakPublicKey)));
+                        KeyUtil.fullDisplayAlgName(weakPublicKey, rb), KeyUtil.getKeySize(weakPublicKey)));
             }
         }
 
@@ -1445,7 +1445,7 @@ public class Main {
             disabledAlgFound = true;
             if (key instanceof ECKey) {
                 return String.format(rb.getString("key.bit.eccurve.disabled"), kLen,
-                        KeyUtil.fullDisplayAlgName(key));
+                        KeyUtil.fullDisplayAlgName(key, rb));
             } else {
                 return String.format(rb.getString("key.bit.disabled"), kLen);
             }
@@ -1462,7 +1462,7 @@ public class Main {
             legacyAlg |= 8;
             if (key instanceof ECKey) {
                 return String.format(rb.getString("key.bit.eccurve.weak"), kLen,
-                        KeyUtil.fullDisplayAlgName(key));
+                        KeyUtil.fullDisplayAlgName(key, rb));
             } else {
                 return String.format(rb.getString("key.bit.weak"), kLen);
             }
@@ -1520,7 +1520,7 @@ public class Main {
         } catch (CertPathValidatorException e) {
             if (key instanceof ECKey) {
                 return String.format(rb.getString("key.bit.eccurve.disabled"), kLen,
-                        KeyUtil.fullDisplayAlgName(key));
+                        KeyUtil.fullDisplayAlgName(key, rb));
             } else {
                 return String.format(rb.getString("key.bit.disabled"), kLen);
             }
@@ -1535,7 +1535,7 @@ public class Main {
         } catch (CertPathValidatorException e) {
             if (key instanceof ECKey) {
                 return String.format(rb.getString("key.bit.eccurve.weak"), kLen,
-                        KeyUtil.fullDisplayAlgName(key));
+                        KeyUtil.fullDisplayAlgName(key, rb));
             } else {
                 return String.format(rb.getString("key.bit.weak"), kLen);
             }

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2006, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2023, Huawei Technologies Co., Ltd. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -23,12 +24,16 @@
  * questions.
  */
 
-package sun.security.util;
+package org.openeuler.security.openssl;
 
+import sun.security.util.DerOutputStream;
+import sun.security.util.ObjectIdentifier;
+import sun.security.util.KnownOIDs;
+
+import java.io.IOException;
 import java.math.BigInteger;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.EllipticCurve;
+
+import java.security.spec.*;
 
 /**
  * Contains Elliptic Curve parameters.
@@ -36,8 +41,7 @@ import java.security.spec.EllipticCurve;
  * @since   1.6
  * @author  Andreas Sterbenz
  */
-public final class NamedCurve extends ECParameterSpec {
-
+public final class KAENamedCurve extends ECParameterSpec {
     // friendly names with stdName followed by aliases
     private final String[] nameAndAliases;
 
@@ -47,8 +51,8 @@ public final class NamedCurve extends ECParameterSpec {
     // encoded form (as NamedCurve identified via OID)
     private final byte[] encoded;
 
-    NamedCurve(KnownOIDs ko, EllipticCurve curve,
-            ECPoint g, BigInteger n, int h) {
+    KAENamedCurve(KnownOIDs ko, EllipticCurve curve,
+               ECPoint g, BigInteger n, int h) {
         super(curve, g, n, h);
         String[] aliases = ko.aliases();
         this.nameAndAliases = new String[aliases.length + 1];
@@ -58,7 +62,11 @@ public final class NamedCurve extends ECParameterSpec {
         this.oid = ko.value();
 
         DerOutputStream out = new DerOutputStream();
-        out.putOID(ObjectIdentifier.of(ko));
+        try {
+            out.putOID(ObjectIdentifier.of(ko));
+        } catch (Exception e) {
+            throw new RuntimeException("Internal error", e);
+        }
         encoded = out.toByteArray();
     }
 
