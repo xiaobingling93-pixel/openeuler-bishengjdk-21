@@ -93,7 +93,7 @@ public class KAEProvider extends Provider {
         return Boolean.parseBoolean(explicitLoad);
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "this-escape"})
     public KAEProvider() {
         super("KAEProvider", PROVIDER_VER, "KAE provider");
         if (KAEConfig.useKaeProvider("kae.md5")) {
@@ -126,6 +126,12 @@ public class KAEProvider extends Provider {
         }
         if (KAEConfig.useKaeProvider("kae.ec")) {
             putEC();
+        }
+        if (KAEConfig.useKaeProvider("kae.sm2.cipher")) {
+            putSM2Cipher();
+        }
+        if (KAEConfig.useKaeProvider("kae.sm2.signature")) {
+            putSM2Signature();
         }
     }
 
@@ -316,6 +322,25 @@ public class KAEProvider extends Provider {
         put("KeyPairGenerator.EC", "org.openeuler.security.openssl.KAEECKeyPairGenerator");
         put("Alg.Alias.KeyPairGenerator.EllipticCurve", "EC");
         put("KeyAgreement.ECDH", "org.openeuler.security.openssl.KAEECDHKeyAgreement");
+        
+        put("KeyFactory.EC", "org.openeuler.security.openssl.KAEECKeyFactory");
+        put("Alg.Alias.KeyFactory.EllipticCurve", "EC");
+ 
+        put("AlgorithmParameters.EC", "org.openeuler.security.openssl.KAEECParameters");
+        put("Alg.Alias.AlgorithmParameters.EllipticCurve", "EC");
+        put("Alg.Alias.AlgorithmParameters.1.2.840.10045.2.1", "EC");
+    }
+
+    private void putSM2Cipher() {
+        put("KeyPairGenerator.SM2", "org.openeuler.security.openssl.KAESM2KeyPairGenerator");
+        put("KeyFactory.SM2", "org.openeuler.security.openssl.KAEECKeyFactory");
+        put("AlgorithmParameters.SM2", "org.openeuler.security.openssl.KAEECParameters");
+        put("Alg.Alias.AlgorithmParameters.1.2.156.10197.1.301", "SM2");
+        put("Cipher.SM2","org.openeuler.security.openssl.KAESM2Cipher");
+    }
+
+    private void putSM2Signature() {
+        put("Signature.SM3withSM2", "org.openeuler.security.openssl.KAESM2Signature$SM3withSM2");
     }
 
     // init openssl
