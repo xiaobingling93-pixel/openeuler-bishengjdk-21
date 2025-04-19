@@ -1246,7 +1246,6 @@
     declare_type(MethodCounters, MetaspaceObj)                            \
     declare_type(ConstMethod, MetaspaceObj)                               \
     declare_type(Annotations, MetaspaceObj)                               \
-    declare_type(Array<Array<u1>*>, MetaspaceObj)                         \
                                                                           \
   declare_toplevel_type(MethodData::CompilerCounters)                     \
                                                                           \
