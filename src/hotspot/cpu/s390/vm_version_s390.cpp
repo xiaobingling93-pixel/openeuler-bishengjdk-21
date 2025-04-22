@@ -290,19 +290,15 @@ void VM_Version::initialize() {
   if (FLAG_IS_DEFAULT(UseMontgomerySquareIntrinsic)) {
     FLAG_SET_DEFAULT(UseMontgomerySquareIntrinsic, true);
   }
+
+  // The OptoScheduling information is not maintained in s390.ad.
+  if (OptoScheduling) {
+    warning("OptoScheduling is not supported on this CPU.");
+    FLAG_SET_DEFAULT(OptoScheduling, false);
+  }
 #endif
   if (FLAG_IS_DEFAULT(UsePopCountInstruction)) {
     FLAG_SET_DEFAULT(UsePopCountInstruction, true);
-  }
-
-  if (UnlockExperimentalVMOptions && UseHashMapIntegerCache && !FLAG_IS_DEFAULT(UseHashMapIntegerCache)) {
-    FLAG_SET_DEFAULT(UseHashMapIntegerCache, false);
-    warning("HashMap optimization is not supported in this VM.");
-  }
-
-  if (UnlockExperimentalVMOptions && UseFastSerializer && !FLAG_IS_DEFAULT(UseFastSerializer)) {
-    FLAG_SET_DEFAULT(UseFastSerializer, false);
-    warning("Serializer optimization is not supported in this VM.");
   }
 
   // z/Architecture supports 8-byte compare-exchange operations
@@ -319,12 +315,6 @@ void VM_Version::initialize() {
   // Unaligned accesses are not atomic, of course.
   if (FLAG_IS_DEFAULT(UseUnalignedAccesses)) {
     FLAG_SET_DEFAULT(UseUnalignedAccesses, true);
-  }
-
-  // The OptoScheduling information is not maintained in s390.ad.
-  if (OptoScheduling) {
-    warning("OptoScheduling is not supported on this CPU.");
-    FLAG_SET_DEFAULT(OptoScheduling, false);
   }
 }
 
