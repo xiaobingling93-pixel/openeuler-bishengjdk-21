@@ -2494,7 +2494,7 @@ class VM_HeapDumper : public VM_GC_Operation, public WorkerTask {
   }
   void set_dump_instance_fields_descriptors() {
     assert(_dump_instance_fields_descriptors == nullptr, "Error");
-    assert(_global_writer == nullptr, "Error");
+    assert(_global_writer != nullptr, "Error");
     if(_global_writer->getHeapDumpRedactLevel() == REDACT_ANNOTATION) {
       _dump_instance_fields_descriptors = DumperSupport::dump_instance_annotation_field_descriptors;
     } else if(_global_writer->getHeapDumpRedactLevel() == REDACT_DIYRULES) {
