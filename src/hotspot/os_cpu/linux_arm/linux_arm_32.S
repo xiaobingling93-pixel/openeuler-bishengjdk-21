@@ -28,6 +28,8 @@
 	# point or use it in the same manner as does the server
 	# compiler.
 
+        .globl _Copy_conjoint_bytes
+        .type _Copy_conjoint_bytes, %function
         .globl _Copy_arrayof_conjoint_bytes
 	.type _Copy_arrayof_conjoint_bytes, %function
 	.globl _Copy_disjoint_words
