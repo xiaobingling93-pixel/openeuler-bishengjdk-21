@@ -56,8 +56,7 @@ typedef enum {
     HMAC_SHA512_INDEX,
     RSA_INDEX,
     DH_INDEX,
-    EC_INDEX,
-    SM2_INDEX
+    EC_INDEX
 } AlgorithmIndex;
 
 typedef struct {
@@ -70,9 +69,6 @@ BIGNUM* KAE_GetBigNumFromByteArray(JNIEnv* env, jbyteArray byteArray);
 
 /* release BIGNUM allocat from */
 void KAE_ReleaseBigNumFromByteArray(BIGNUM* bn);
-
-/* release BIGNUM allocat from and clear data*/
-void KAE_ReleaseBigNumFromByteArray_Clear(BIGNUM* bn);
 
 /* BIGNUM convert to jbyteArray */
 jbyteArray KAE_GetByteArrayFromBigNum(JNIEnv* env, const BIGNUM* bn);

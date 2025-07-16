@@ -27,7 +27,6 @@
 package org.openeuler.security.openssl;
 
 import sun.security.ec.ECKeyFactory;
-import sun.security.util.NamedCurve;
 
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
@@ -96,16 +95,7 @@ public class KAEECDHKeyAgreement extends KeyAgreementSpi {
         // Bits to bytes.
         expectedSecretLen = (keyLenBits + 7) >> 3;
 
-        // Using KAENamedCurve.name can be inaccurate. need ObjectId
-        if (params instanceof KAENamedCurve) {
-            curveName = KAEUtils.getCurveByAlias(((KAENamedCurve) params).getObjectId());
-        }else if (params instanceof NamedCurve) {
-            curveName = KAEUtils.getCurveByAlias(((NamedCurve) params).getObjectId());
-        }else {
-            KAENamedCurve curve = KAECurveDB.lookup(params);
-            curveName = KAEUtils.getCurveByAlias(curve.getObjectId());
-        }
-
+        curveName = KAEUtils.getCurveBySize(keyLenBits);
         if (curveName == null) {
             throw new InvalidParameterException("unknown keyLenBits " + keyLenBits);
         }

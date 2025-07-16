@@ -59,7 +59,6 @@ import java.security.cert.X509CRLSelector;
 import javax.security.auth.x500.X500Principal;
 import java.util.Base64;
 
-
 import sun.security.pkcs12.PKCS12KeyStore;
 import sun.security.provider.certpath.CertPathConstraintsParameters;
 import sun.security.util.ConstraintsParameters;
@@ -2022,7 +2021,7 @@ public final class Main {
                     ("Generating.keysize.bit.keyAlgName.key.pair.and.a.certificate.sigAlgName.issued.by.signerAlias.with.a.validity.of.validality.days.for"));
             source = new Object[]{
                     groupName == null ? keysize : KeyUtil.getKeySize(privKey),
-                    KeyUtil.fullDisplayAlgName(privKey, rb),
+                    KeyUtil.fullDisplayAlgName(privKey),
                     newCert.getSigAlgName(),
                     signerAlias,
                     validity,
@@ -2032,7 +2031,7 @@ public final class Main {
                     ("Generating.keysize.bit.keyAlgName.key.pair.and.self.signed.certificate.sigAlgName.with.a.validity.of.validality.days.for"));
             source = new Object[]{
                     groupName == null ? keysize : KeyUtil.getKeySize(privKey),
-                    KeyUtil.fullDisplayAlgName(privKey, rb),
+                    KeyUtil.fullDisplayAlgName(privKey),
                     newCert.getSigAlgName(),
                     validity,
                     x500Name};
@@ -3580,7 +3579,7 @@ public final class Main {
     private String withWeakConstraint(Key key,
             CertPathConstraintsParameters cpcp) {
         int kLen = KeyUtil.getKeySize(key);
-        String displayAlg = KeyUtil.fullDisplayAlgName(key, rb);
+        String displayAlg = KeyUtil.fullDisplayAlgName(key);
         try {
             DISABLED_CHECK.permits(key.getAlgorithm(), cpcp, true);
         } catch (CertPathValidatorException e) {
@@ -4956,13 +4955,13 @@ public final class Main {
                     weakWarnings.add(String.format(
                             rb.getString("whose.key.weak"), label,
                             String.format(rb.getString("key.bit"),
-                            KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key, rb))));
+                            KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
                 }
             } catch (CertPathValidatorException e) {
                 weakWarnings.add(String.format(
                         rb.getString("whose.key.disabled"), label,
                         String.format(rb.getString("key.bit"),
-                        KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key, rb))));
+                        KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
             }
         }
     }
@@ -4983,12 +4982,12 @@ public final class Main {
                 weakWarnings.add(String.format(
                     rb.getString("whose.key.disabled"), label,
                     String.format(rb.getString("key.bit"),
-                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key, rb))));
+                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
             } else if (!LEGACY_CHECK.permits(SIG_PRIMITIVE_SET, key)) {
                 weakWarnings.add(String.format(
                     rb.getString("whose.key.weak"), label,
                     String.format(rb.getString("key.bit"),
-                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key, rb))));
+                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
             }
         }
     }

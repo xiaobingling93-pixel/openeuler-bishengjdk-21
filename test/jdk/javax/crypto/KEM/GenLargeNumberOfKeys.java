@@ -49,14 +49,12 @@ public class GenLargeNumberOfKeys {
 
     private static void testAlgo(KEM kem, String algo, String curveId) throws Exception {
         KeyPair kp = genKeyPair(algo, curveId);
-        if (!kp.getPrivate().getClass().getSimpleName().equals("KAEECPrivateKeyImpl")) {
-            KEM.Encapsulator e = kem.newEncapsulator(kp.getPublic());
-            KEM.Decapsulator d = kem.newDecapsulator(kp.getPrivate());
-            for (int i = 0; i < COUNT; i++) {
-                test(e, d);
-            }
-            System.out.println(algo + ": test Successful");
+        KEM.Encapsulator e = kem.newEncapsulator(kp.getPublic());
+        KEM.Decapsulator d = kem.newDecapsulator(kp.getPrivate());
+        for (int i = 0; i < COUNT; i++) {
+            test(e, d);
         }
+        System.out.println(algo + ": test Successful");
     }
 
     private static KeyPair genKeyPair(String algo, String curveId) throws Exception {

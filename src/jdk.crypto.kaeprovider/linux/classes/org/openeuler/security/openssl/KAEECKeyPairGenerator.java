@@ -26,6 +26,9 @@
 
 package org.openeuler.security.openssl;
 
+import sun.security.ec.ECPrivateKeyImpl;
+import sun.security.ec.ECPublicKeyImpl;
+
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidParameterException;
@@ -60,7 +63,7 @@ public class KAEECKeyPairGenerator extends KeyPairGeneratorSpi {
         this.param = getParamsByCurve(curveName);
     }
 
-    protected ECParameterSpec getParamsByCurve(String curveName) {
+    private ECParameterSpec getParamsByCurve(String curveName) {
         byte[][] params = nativeGenerateParam(curveName);
         if (params == null) {
             throw new InvalidParameterException("unknown curve " + curveName);
@@ -122,18 +125,18 @@ public class KAEECKeyPairGenerator extends KeyPairGeneratorSpi {
         BigInteger s = new BigInteger(keys[2]);
         ECPoint w = new ECPoint(wX, wY);
 
-        KAEECPrivateKeyImpl privateKey;
-        KAEECPublicKeyImpl publicKey;
+        ECPrivateKeyImpl privateKey = null;
+        ECPublicKeyImpl publicKey = null;
         try {
-            Class<?> pubKeyImpl = Class.forName("org.openeuler.security.openssl.KAEECPublicKeyImpl");
+            Class<?> pubKeyImpl = Class.forName("sun.security.ec.ECPublicKeyImpl");
             Constructor<?> conPubKeyImpl = pubKeyImpl.getDeclaredConstructor(ECPoint.class, ECParameterSpec.class);
             conPubKeyImpl.setAccessible(true);
-            publicKey = (KAEECPublicKeyImpl) conPubKeyImpl.newInstance(w, param);
+            publicKey = (ECPublicKeyImpl) conPubKeyImpl.newInstance(w, param);
     
-            Class<?> priKeyImpl = Class.forName("org.openeuler.security.openssl.KAEECPrivateKeyImpl");
+            Class<?> priKeyImpl = Class.forName("sun.security.ec.ECPrivateKeyImpl");
             Constructor<?> conPriKeyImpl = priKeyImpl.getDeclaredConstructor(BigInteger.class, ECParameterSpec.class);
             conPriKeyImpl.setAccessible(true);
-            privateKey = (KAEECPrivateKeyImpl) conPriKeyImpl.newInstance(s, param);
+            privateKey = (ECPrivateKeyImpl) conPriKeyImpl.newInstance(s, param);
         } catch (ClassNotFoundException | NoSuchMethodException | InstantiationException |
                 IllegalAccessException | InvocationTargetException e) {
             throw new ProviderException(e);
