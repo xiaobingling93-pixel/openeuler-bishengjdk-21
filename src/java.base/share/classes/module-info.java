@@ -335,7 +335,6 @@ module java.base {
         jdk.crypto.kaeprovider,
         jdk.naming.dns;
     exports sun.security.pkcs to
-        jdk.crypto.kaeprovider,
         jdk.crypto.ec,
         jdk.jartool;
     exports sun.security.provider to

@@ -78,12 +78,6 @@ void KAE_ReleaseBigNumFromByteArray(BIGNUM* bn) {
     }
 }
 
-void KAE_ReleaseBigNumFromByteArray_Clear(BIGNUM* bn) {
-    if (bn != NULL) {
-        BN_clear_free(bn);
-    }
-}
-
 jbyteArray KAE_GetByteArrayFromBigNum(JNIEnv* env, const BIGNUM* bn) {
     if (bn == NULL) {
         return NULL;
@@ -117,7 +111,7 @@ cleanup:
     return javaBytes;
 }
 
-#define ENGINE_LENGTH (SM2_INDEX + 1)
+#define ENGINE_LENGTH (EC_INDEX + 1)
 static ENGINE* engines[ENGINE_LENGTH] = {NULL};
 static jboolean engineFlags[ENGINE_LENGTH] = {JNI_FALSE};
 static KAEAlgorithm kaeAlgorithms[ENGINE_LENGTH] = {
@@ -149,8 +143,7 @@ static KAEAlgorithm kaeAlgorithms[ENGINE_LENGTH] = {
         {HMAC_SHA512_INDEX, "hmac-sha512"},
         {RSA_INDEX,         "rsa"},
         {DH_INDEX,          "dh"},
-        {EC_INDEX,          "ec"},
-        {SM2_INDEX,         "sm2"}
+        {EC_INDEX,          "ec"}
 };
 
 void initEngines(JNIEnv* env, jbooleanArray algorithmKaeFlags) {

@@ -44,8 +44,7 @@ import java.util.Map;
  * @run main/othervm -Dkae.log=true -Dkae.rsa.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.dh.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.ec.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dkae.sm2.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dall.test=enable -Dkae.digest.useKaeEngine=true -Dkae.aes.useKaeEngine=true -Dkae.sm4.useKaeEngine=true  -Dkae.hmac.useKaeEngine=true -Dkae.rsa.useKaeEngine=true -Dkae.dh.useKaeEngine=true -Dkae.ec.useKaeEngine=true -Dkae.sm2.useKaeEngine=true  KAEUseEngineTest
+ * @run main/othervm -Dkae.log=true -Dall.test=enable -Dkae.digest.useKaeEngine=true -Dkae.aes.useKaeEngine=true -Dkae.sm4.useKaeEngine=true  -Dkae.hmac.useKaeEngine=true -Dkae.rsa.useKaeEngine=true -Dkae.dh.useKaeEngine=true -Dkae.ec.useKaeEngine=true   KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.digest.useKaeEngine=false KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.aes.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.sm4.useKaeEngine=true KAEUseEngineTest
@@ -53,8 +52,7 @@ import java.util.Map;
  * @run main/othervm -Dkae.log=true -Dkae.rsa.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.dh.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.ec.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dkae.sm2.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dall.test=disable -Dkae.digest.useKaeEngine=false -Dkae.aes.useKaeEngine=false -Dkae.sm4.useKaeEngine=false  -Dkae.hmac.useKaeEngine=false -Dkae.rsa.useKaeEngine=false -Dkae.dh.useKaeEngine=false -Dkae.ec.useKaeEngine=false -Dkae.sm2.useKaeEngine=true  KAEUseEngineTest
+ * @run main/othervm -Dkae.log=true -Dall.test=disable -Dkae.digest.useKaeEngine=false -Dkae.aes.useKaeEngine=false -Dkae.sm4.useKaeEngine=false  -Dkae.hmac.useKaeEngine=false -Dkae.rsa.useKaeEngine=false -Dkae.dh.useKaeEngine=false -Dkae.ec.useKaeEngine=false  KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dall.test=default -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.aes.useKaeEngine=true KAEUseEngineTest
@@ -63,8 +61,7 @@ import java.util.Map;
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.rsa.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.dh.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.ec.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.sm2.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dall.test=enable -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=true -Dkae.aes.useKaeEngine=true -Dkae.sm4.useKaeEngine=true  -Dkae.hmac.useKaeEngine=true -Dkae.rsa.useKaeEngine=true -Dkae.dh.useKaeEngine=true -Dkae.ec.useKaeEngine=true -Dkae.sm2.useKaeEngine=true   KAEUseEngineTest
+ * @run main/othervm -Dkae.log=true -Dall.test=enable -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=true -Dkae.aes.useKaeEngine=true -Dkae.sm4.useKaeEngine=true  -Dkae.hmac.useKaeEngine=true -Dkae.rsa.useKaeEngine=true -Dkae.dh.useKaeEngine=true -Dkae.ec.useKaeEngine=true   KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=false KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.aes.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.sm4.useKaeEngine=true KAEUseEngineTest
@@ -72,100 +69,94 @@ import java.util.Map;
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.rsa.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.dh.useKaeEngine=true KAEUseEngineTest
  * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.ec.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.sm2.useKaeEngine=true KAEUseEngineTest
- * @run main/othervm -Dkae.log=true -Dall.test=disable -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=false -Dkae.aes.useKaeEngine=false -Dkae.sm4.useKaeEngine=false  -Dkae.hmac.useKaeEngine=false -Dkae.rsa.useKaeEngine=false -Dkae.dh.useKaeEngine=false -Dkae.ec.useKaeEngine=false -Dkae.sm2.useKaeEngine=false  KAEUseEngineTest
+ * @run main/othervm -Dkae.log=true -Dall.test=disable -Dkae.engine.id=uadk_engine -Dkae.libcrypto.useGlobalMode=true -Dkae.digest.useKaeEngine=false -Dkae.aes.useKaeEngine=false -Dkae.sm4.useKaeEngine=false  -Dkae.hmac.useKaeEngine=false -Dkae.rsa.useKaeEngine=false -Dkae.dh.useKaeEngine=false -Dkae.ec.useKaeEngine=false  KAEUseEngineTest
  */
 public class KAEUseEngineTest {
   enum Mode {
     DEFAULT(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }),
     DIGEST_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 0, true),
     AES_ENABLE(new boolean[]{
             true, false, false, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 1, true),
     SM4_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 2, true),
     HMAC_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            true, true, true, true, true, true, true, true, false, false
+            true, true, true, true, true, true, true, true, false
     }, 3, true),
     RSA_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 4, true),
     DH_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 5, true),
     EC_ENABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 6, true),
     ALL_ENABLE(new boolean[]{
             true, false, false, true, true, true, true, true, true, true,
             true, true, true, true, true, true, true, true, true, true,
-            true, true, true, true, true, true, true, true, false, false
+            true, true, true, true, true, true, true, true, false
     }, true),
     DIGEST_DISABLE(new boolean[]{
             false, false, false, false, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 0, false),
     AES_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 1, false),
     SM4_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 2, false),
     HMAC_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 3, false),
     RSA_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, false, true, false, false
+            false, false, false, false, false, false, false, true, false
     }, 4, false),
     DH_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, false, false, false
+            false, false, false, false, false, false, true, false, false
     }, 5, false),
     EC_DISABLE(new boolean[]{
             true, false, false, true, false, false, false, false, false, false,
             false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
+            false, false, false, false, false, false, true, true, false
     }, 6, false),
-    SM2_DISABLE(new boolean[]{
-            true, false, false, true, false, false, false, false, false, false,
-            false, false, false, false, false, false, true, true, true, true,
-            false, false, false, false, false, false, true, true, false, false
-    }, 7, false),
     ALL_DISABLE(new boolean[]{
             false, false, false, false, false, false, false, false, false, false,
             false, false, false, false, false, false, false, false, false, false,
-            false, false, false, false, false, false, false, false, false, false
+            false, false, false, false, false, false, false, false, false
     }, false);
     private final boolean[] expectedResult;
     private final Integer propertyNameIndex;
@@ -217,8 +208,7 @@ public class KAEUseEngineTest {
           "kae.hmac.useKaeEngine",
           "kae.rsa.useKaeEngine",
           "kae.dh.useKaeEngine",
-          "kae.ec.useKaeEngine",
-          "kae.sm2.useKaeEngine"
+          "kae.ec.useKaeEngine"
   };
 
   private static final List<File> files = new ArrayList<>();

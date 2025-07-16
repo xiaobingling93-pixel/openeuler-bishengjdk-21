@@ -111,7 +111,7 @@ public class PreferredProviderNegativeTest {
         if (Security.getProperty("security.provider.1").equals("KAEProvider")) {
             expected = "KAEProvider";
         } else {
-            expected = System.getProperty("test.provider.name", "SunJCE");
+            expected = "SunJCE";
         }
 
         if (args.length >= 2) {

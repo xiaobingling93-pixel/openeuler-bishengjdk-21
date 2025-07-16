@@ -139,6 +139,7 @@ jobject JdkJfrEvent::get_all_klasses(TRAPS) {
   if (h_array_list.is_null()) {
     return empty_java_util_arraylist;
   }
+
   static const char add_method_name[] = "add";
   static const char add_method_signature[] = "(Ljava/lang/Object;)Z";
   const Klass* const array_list_klass = JfrJavaSupport::klass(empty_java_util_arraylist);
