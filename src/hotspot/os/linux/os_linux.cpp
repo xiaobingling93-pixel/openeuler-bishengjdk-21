@@ -1410,6 +1410,11 @@ void os::Linux::capture_initial_stack(size_t max_size) {
 
 ////////////////////////////////////////////////////////////////////////////////
 // time support
+
+#ifndef SUPPORTS_CLOCK_MONOTONIC
+#error "Build platform doesn't support clock_gettime and related functionality"
+#endif
+
 double os::elapsedVTime() {
   struct rusage usage;
   int retval = getrusage(RUSAGE_THREAD, &usage);
@@ -1418,6 +1423,38 @@ double os::elapsedVTime() {
   } else {
     // better than nothing, but not much
     return elapsedTime();
+  }
+}
+
+jlong os::javaTimeMillis() {
+  if (os::Posix::supports_clock_gettime()) {
+    struct timespec ts;
+    int status = os::Posix::clock_gettime(CLOCK_REALTIME, &ts);
+    assert_status(status == 0, status, "gettime error");
+    return jlong(ts.tv_sec) * MILLIUNITS +
+           jlong(ts.tv_nsec) / NANOUNITS_PER_MILLIUNIT;
+  } else {
+    timeval time;
+    int status = gettimeofday(&time, NULL);
+    assert(status != -1, "linux error");
+    return jlong(time.tv_sec) * MILLIUNITS  +
+           jlong(time.tv_usec) / (MICROUNITS / MILLIUNITS);
+  }
+}
+
+void os::javaTimeSystemUTC(jlong &seconds, jlong &nanos) {
+  if (os::Posix::supports_clock_gettime()) {
+    struct timespec ts;
+    int status = os::Posix::clock_gettime(CLOCK_REALTIME, &ts);
+    assert_status(status == 0, status, "gettime error");
+    seconds = jlong(ts.tv_sec);
+    nanos = jlong(ts.tv_nsec);
+  } else {
+    timeval time;
+    int status = gettimeofday(&time, NULL);
+    assert(status != -1, "linux error");
+    seconds = jlong(time.tv_sec);
+    nanos = jlong(time.tv_usec) * (NANOUNITS / MICROUNITS);
   }
 }
 
@@ -1441,10 +1478,45 @@ void os::Linux::fast_thread_clock_init() {
 
   if (pthread_getcpuclockid_func &&
       pthread_getcpuclockid_func(_main_thread, &clockid) == 0 &&
-      clock_getres(clockid, &tp) == 0 && tp.tv_sec == 0) {
+      os::Posix::clock_getres(clockid, &tp) == 0 && tp.tv_sec == 0) {
     _supports_fast_thread_cpu_time = true;
     _pthread_getcpuclockid = pthread_getcpuclockid_func;
   }
+}
+
+jlong os::javaTimeNanos() {
+  if (os::supports_monotonic_clock()) {
+    struct timespec tp;
+    int status = os::Posix::clock_gettime(CLOCK_MONOTONIC, &tp);
+    assert(status == 0, "gettime error");
+    jlong result = jlong(tp.tv_sec) * (1000 * 1000 * 1000) + jlong(tp.tv_nsec);
+    return result;
+  } else {
+    timeval time;
+    int status = gettimeofday(&time, NULL);
+    assert(status != -1, "linux error");
+    jlong usecs = jlong(time.tv_sec) * (1000 * 1000) + jlong(time.tv_usec);
+    return 1000 * usecs;
+  }
+}
+
+void os::javaTimeNanos_info(jvmtiTimerInfo *info_ptr) {
+  if (os::supports_monotonic_clock()) {
+    info_ptr->max_value = ALL_64_BITS;
+
+    // CLOCK_MONOTONIC - amount of time since some arbitrary point in the past
+    info_ptr->may_skip_backward = false;      // not subject to resetting or drifting
+    info_ptr->may_skip_forward = false;       // not subject to resetting or drifting
+  } else {
+    // gettimeofday - based on time in seconds since the Epoch thus does not wrap
+    info_ptr->max_value = ALL_64_BITS;
+
+    // gettimeofday is a real time clock so it skips
+    info_ptr->may_skip_backward = true;
+    info_ptr->may_skip_forward = true;
+  }
+
+  info_ptr->kind = JVMTI_TIMER_ELAPSED;                // elapsed not CPU time
 }
 
 // thread_id is kernel thread id (similar to Solaris LWP id)
@@ -2386,6 +2458,8 @@ bool os::Linux::print_container_info(outputStream* st) {
   OSContainer::print_container_helper(st, OSContainer::memory_soft_limit_in_bytes(), "memory_soft_limit_in_bytes");
   OSContainer::print_container_helper(st, OSContainer::memory_usage_in_bytes(), "memory_usage_in_bytes");
   OSContainer::print_container_helper(st, OSContainer::memory_max_usage_in_bytes(), "memory_max_usage_in_bytes");
+  OSContainer::print_container_helper(st, OSContainer::rss_usage_in_bytes(), "rss_usage_in_bytes");
+  OSContainer::print_container_helper(st, OSContainer::cache_usage_in_bytes(), "cache_usage_in_bytes");
 
   OSContainer::print_version_specific_info(st);
 
@@ -4412,8 +4486,8 @@ OSReturn os::get_native_priority(const Thread* const thread,
 
 jlong os::Linux::fast_thread_cpu_time(clockid_t clockid) {
   struct timespec tp;
-  int status = clock_gettime(clockid, &tp);
-  assert(status == 0, "clock_gettime error: %s", os::strerror(errno));
+  int rc = os::Posix::clock_gettime(clockid, &tp);
+  assert(rc == 0, "clock_gettime is expected to return 0 code");
   return (tp.tv_sec * NANOSECS_PER_SEC) + tp.tv_nsec;
 }
 
@@ -4533,6 +4607,12 @@ void os::init(void) {
   FLAG_SET_DEFAULT(UseMadvPopulateWrite, (::madvise(0, 0, MADV_POPULATE_WRITE) == 0));
 
   os::Posix::init();
+
+  // Always warn if no monotonic clock available
+  if (!os::Posix::supports_monotonic_clock()) {
+    warning("No monotonic clock was available - timed services may "    \
+            "be adversely affected if the time-of-day clock changes");
+  }
 }
 
 // To install functions for atexit system call

@@ -948,6 +948,21 @@ double os::elapsedVTime() {
   }
 }
 
+jlong os::javaTimeMillis() {
+  timeval time;
+  int status = gettimeofday(&time, NULL);
+  assert(status != -1, "aix error at gettimeofday()");
+  return jlong(time.tv_sec) * 1000 + jlong(time.tv_usec / 1000);
+}
+
+void os::javaTimeSystemUTC(jlong &seconds, jlong &nanos) {
+  timeval time;
+  int status = gettimeofday(&time, NULL);
+  assert(status != -1, "aix error at gettimeofday()");
+  seconds = jlong(time.tv_sec);
+  nanos = jlong(time.tv_usec) * 1000;
+}
+
 // We use mread_real_time here.
 // On AIX: If the CPU has a time register, the result will be RTC_POWER and
 // it has to be converted to real time. AIX documentations suggests to do
@@ -2702,7 +2717,7 @@ static bool thread_cpu_time_unchecked(Thread* thread, jlong* p_sys_time, jlong* 
                           dummy, &dummy_size) == 0) {
     tid = pinfo.__pi_tid;
   } else {
-    tty->print_cr("pthread_getthrds_np failed.");
+    tty->print_cr("pthread_getthrds_np failed, errno: %d.", errno);
     error = true;
   }
 
@@ -2713,7 +2728,7 @@ static bool thread_cpu_time_unchecked(Thread* thread, jlong* p_sys_time, jlong* 
       sys_time = thrdentry.ti_ru.ru_stime.tv_sec * 1000000000LL + thrdentry.ti_ru.ru_stime.tv_usec * 1000LL;
       user_time = thrdentry.ti_ru.ru_utime.tv_sec * 1000000000LL + thrdentry.ti_ru.ru_utime.tv_usec * 1000LL;
     } else {
-      tty->print_cr("pthread_getthrds_np failed.");
+      tty->print_cr("getthrds64 failed, errno: %d.", errno);
       error = true;
     }
   }

@@ -387,7 +387,7 @@ AC_DEFUN([FLAGS_SETUP_OPTIMIZATION],
     C_O_FLAG_DEBUG="-Od"
     C_O_FLAG_DEBUG_JVM=""
     C_O_FLAG_NONE="-Od"
-    C_O_FLAG_SIZE="-Os"
+    C_O_FLAG_SIZE="-O1"
   fi
 
   # Now copy to C++ flags
@@ -724,6 +724,25 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     JDK_PICFLAG=''
     if test "x$STATIC_BUILD" = xtrue; then
       JVM_PICFLAG=""
+    fi
+  fi
+
+  # Optional POSIX functionality needed by the JVM
+  #
+  # Check if clock_gettime is available and in which library. This indicates
+  # availability of CLOCK_MONOTONIC for hotspot. But we don't need to link, so
+  # don't let it update LIBS.
+  save_LIBS="$LIBS"
+  AC_SEARCH_LIBS(clock_gettime, rt, [HAS_CLOCK_GETTIME=true], [])
+  if test "x$LIBS" = "x-lrt "; then
+    CLOCK_GETTIME_IN_LIBRT=true
+  fi
+  LIBS="$save_LIBS"
+
+  if test "x$HAS_CLOCK_GETTIME" = "xtrue"; then
+    OS_CFLAGS_JVM="$OS_CFLAGS_JVM -DSUPPORTS_CLOCK_MONOTONIC"
+    if test "x$CLOCK_GETTIME_IN_LIBRT" = "xtrue"; then
+      OS_CFLAGS_JVM="$OS_CFLAGS_JVM -DNEEDS_LIBRT"
     fi
   fi
 
