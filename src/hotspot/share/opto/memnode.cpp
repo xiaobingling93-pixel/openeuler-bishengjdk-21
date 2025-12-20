@@ -1885,6 +1885,15 @@ Node *LoadNode::Ideal(PhaseGVN *phase, bool can_reshape) {
 const Type*
 LoadNode::load_array_final_field(const TypeKlassPtr *tkls,
                                  ciKlass* klass) const {
+#ifdef AARCH64
+  if (UseCompactObjectHeaders) {
+    if (tkls->offset() == in_bytes(Klass::prototype_header_offset())) {
+      // The field is Klass::_prototype_header.  Return its (constant) value.
+      assert(this->Opcode() == Op_LoadX, "must load a proper type from _prototype_header");
+      return TypeX::make(klass->prototype_header());
+    }
+  }
+#endif
   if (tkls->offset() == in_bytes(Klass::modifier_flags_offset())) {
     // The field is Klass::_modifier_flags.  Return its (constant) value.
     // (Folds up the 2nd indirection in aClassConstant.getModifiers().)
@@ -2057,6 +2066,15 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
         assert(Opcode() == Op_LoadI, "must load an int from _super_check_offset");
         return TypeInt::make(klass->super_check_offset());
       }
+#ifdef AARCH64
+      if (UseCompactObjectHeaders) {
+        if (tkls->offset() == in_bytes(Klass::prototype_header_offset())) {
+          // The field is Klass::_prototype_header. Return its (constant) value.
+          assert(this->Opcode() == Op_LoadX, "must load a proper type from _prototype_header");
+          return TypeX::make(klass->prototype_header());
+        }
+      }
+#endif
       // Compute index into primary_supers array
       juint depth = (tkls->offset() - in_bytes(Klass::primary_supers_offset())) / sizeof(Klass*);
       // Check for overflowing; use unsigned compare to handle the negative case.
@@ -2147,7 +2165,7 @@ const Type* LoadNode::Value(PhaseGVN* phase) const {
   }
 
   Node* alloc = is_new_object_mark_load(phase);
-  if (alloc != nullptr) {
+  if (AARCH64_ONLY(!UseCompactObjectHeaders &&) alloc != nullptr) {
     return TypeX::make(markWord::prototype().value());
   }
 

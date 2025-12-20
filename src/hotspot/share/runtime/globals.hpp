@@ -147,6 +147,7 @@ const size_t minimumSymbolTableSize = 1024;
                            constraint)
 const bool UseCompressedOops = false;
 const bool UseCompressedClassPointers = false;
+const bool UseCompactObjectHeaders = false;
 const int ObjectAlignmentInBytes = 8;
 
 #endif // _LP64
@@ -2029,6 +2030,9 @@ const int ObjectAlignmentInBytes = 8;
                                                                             \
   product(bool, StressSecondarySupers, false, DIAGNOSTIC,                   \
           "Use a terrible hash function in order to generate many collisions.") \
+                                                                            \
+  product(bool, ElasticMaxDirectMemory, false,                              \
+          "Allow change max direct memory size during runtime with jcmd")   \
                                                                             \
 
 // end of RUNTIME_FLAGS
