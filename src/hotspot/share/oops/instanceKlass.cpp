@@ -99,6 +99,10 @@
 #if INCLUDE_JFR
 #include "jfr/jfrEvents.hpp"
 #endif
+#ifdef AARCH64
+#include "jprofilecache/jitProfileCache.hpp"
+#include "jprofilecache/jitProfileRecord.hpp"
+#endif
 
 #ifdef DTRACE_ENABLED
 
@@ -626,6 +630,14 @@ void InstanceKlass::deallocate_contents(ClassLoaderData* loader_data) {
   }
   set_default_vtable_indices(nullptr);
 
+#ifdef AARCH64
+  if (JProfilingCacheRecording) {
+    if (source_file_path() != nullptr) {
+      source_file_path()->decrement_refcount();
+      set_source_file_path(nullptr);
+    }
+  }
+#endif
 
   // This array is in Klass, but remove it with the InstanceKlass since
   // this place would be the only caller and it can share memory with transitive
@@ -1137,6 +1149,12 @@ void InstanceKlass::initialize_impl(TRAPS) {
                                jt->name(), external_name());
       }
     }
+
+#ifdef AARCH64
+  if (JProfilingCacheRecording) {
+    JitProfileCache::instance()->recorder()->assign_class_init_order(this);
+  }
+#endif
   }
 
   // Step 7
