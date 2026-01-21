@@ -630,8 +630,8 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     TOOLCHAIN_CFLAGS_JVM="-qtbtable=full -qtune=balanced -fno-exceptions \
         -qalias=noansi -qstrict -qtls=default -qnortti -qnoeh -qignerrno -qstackprotect"
   elif test "x$TOOLCHAIN_TYPE" = xmicrosoft; then
-    TOOLCHAIN_CFLAGS_JVM="-nologo -MD -Zc:preprocessor -Zc:strictStrings -MP"
-    TOOLCHAIN_CFLAGS_JDK="-nologo -MD -Zc:preprocessor -Zc:strictStrings -Zc:wchar_t-"
+    TOOLCHAIN_CFLAGS_JVM="-nologo -MD -Zc:preprocessor -Zc:throwingNew -permissive- -MP"
+    TOOLCHAIN_CFLAGS_JDK="-nologo -MD -Zc:preprocessor -Zc:throwingNew -permissive- -Zc:wchar_t-"
   fi
 
   # CFLAGS C language level for JDK sources (hotspot only uses C++)
@@ -724,25 +724,6 @@ AC_DEFUN([FLAGS_SETUP_CFLAGS_HELPER],
     JDK_PICFLAG=''
     if test "x$STATIC_BUILD" = xtrue; then
       JVM_PICFLAG=""
-    fi
-  fi
-
-  # Optional POSIX functionality needed by the JVM
-  #
-  # Check if clock_gettime is available and in which library. This indicates
-  # availability of CLOCK_MONOTONIC for hotspot. But we don't need to link, so
-  # don't let it update LIBS.
-  save_LIBS="$LIBS"
-  AC_SEARCH_LIBS(clock_gettime, rt, [HAS_CLOCK_GETTIME=true], [])
-  if test "x$LIBS" = "x-lrt "; then
-    CLOCK_GETTIME_IN_LIBRT=true
-  fi
-  LIBS="$save_LIBS"
-
-  if test "x$HAS_CLOCK_GETTIME" = "xtrue"; then
-    OS_CFLAGS_JVM="$OS_CFLAGS_JVM -DSUPPORTS_CLOCK_MONOTONIC"
-    if test "x$CLOCK_GETTIME_IN_LIBRT" = "xtrue"; then
-      OS_CFLAGS_JVM="$OS_CFLAGS_JVM -DNEEDS_LIBRT"
     fi
   fi
 

@@ -731,7 +731,12 @@ png_read_end(png_structrp png_ptr, png_inforp info_ptr)
       png_uint_32 chunk_name = png_ptr->chunk_name;
 
       if (chunk_name != png_IDAT)
-         png_ptr->mode |= PNG_HAVE_CHUNK_AFTER_IDAT;
+      {
+         /* These flags must be set consistently for all non-IDAT chunks,
+          * including the unknown chunks.
+          */
+         png_ptr->mode |= PNG_HAVE_CHUNK_AFTER_IDAT | PNG_AFTER_IDAT;
+      }
 
       if (chunk_name == png_IEND)
          png_handle_chunk(png_ptr, info_ptr, length);
@@ -838,7 +843,8 @@ png_read_destroy(png_structrp png_ptr)
 #endif
 
 #if defined(PNG_READ_EXPAND_SUPPORTED) && \
-    defined(PNG_ARM_NEON_IMPLEMENTATION)
+    (defined(PNG_ARM_NEON_IMPLEMENTATION) || \
+     defined(PNG_RISCV_RVV_IMPLEMENTATION))
    png_free(png_ptr, png_ptr->riffled_palette);
    png_ptr->riffled_palette = NULL;
 #endif
@@ -1357,7 +1363,7 @@ png_image_read_header(png_voidp argument)
 
 #ifdef PNG_STDIO_SUPPORTED
 int PNGAPI
-png_image_begin_read_from_stdio(png_imagep image, FILE* file)
+png_image_begin_read_from_stdio(png_imagep image, FILE *file)
 {
    if (image != NULL && image->version == PNG_IMAGE_VERSION)
    {
@@ -4056,6 +4062,24 @@ png_image_read_direct(png_voidp argument)
 
       display->local_row = row;
       result = png_safe_execute(image, png_image_read_background, display);
+      display->local_row = NULL;
+      png_free(png_ptr, row);
+
+      return result;
+   }
+
+   else if (do_local_scale != 0)
+   {
+      /* For interlaced 16-to-8 conversion, use an intermediate row buffer
+       * to avoid buffer overflows in png_combine_row. The local_row is sized
+       * for the transformed (8-bit) output, preventing the overflow that would
+       * occur if png_combine_row wrote 16-bit data directly to the user buffer.
+       */
+      int result;
+      png_voidp row = png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
+
+      display->local_row = row;
+      result = png_safe_execute(image, png_image_read_direct_scaled, display);
       display->local_row = NULL;
       png_free(png_ptr, row);
 
