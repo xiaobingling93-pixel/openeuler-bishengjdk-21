@@ -82,6 +82,7 @@ TEST_VM(arrayOopDesc, narrowOop) {
 
 TEST_VM(arrayOopDesc, base_offset) {
 #ifdef _LP64
+#ifdef AArch64
   if (UseCompactObjectHeaders) {
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_BOOLEAN), 12);
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_BYTE),    12);
@@ -93,7 +94,9 @@ TEST_VM(arrayOopDesc, base_offset) {
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_DOUBLE),  16);
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_OBJECT),  12);
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_ARRAY),   12);
-  } else if (UseCompressedClassPointers) {
+  } else
+#endif
+  if (UseCompressedClassPointers) {
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_BOOLEAN), 16);
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_BYTE),    16);
     EXPECT_EQ(arrayOopDesc::base_offset_in_bytes(T_SHORT),   16);
