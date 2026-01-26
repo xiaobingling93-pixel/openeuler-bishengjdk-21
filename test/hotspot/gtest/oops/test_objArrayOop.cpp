@@ -27,6 +27,9 @@
 #include "utilities/globalDefinitions.hpp"
 
 TEST_VM(objArrayOop, osize) {
+#ifndef AArch64
+  bool UseCompactObjectHeaders = false;
+#endif
   static const struct {
     int objal; bool ccp; bool coops; bool coh; int result;
   } x[] = {
