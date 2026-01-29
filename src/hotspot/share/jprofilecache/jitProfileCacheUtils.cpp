@@ -74,9 +74,7 @@ Symbol* JitProfileCacheUtils::remove_meaningless_suffix(Symbol* s) {
 }
 
 bool JitProfileCacheUtils::commit_compilation(methodHandle m, int comp_level, int bci, TRAPS) {
-  if (comp_level > JProfilingCacheMaxTierLimit) {
-    comp_level = JProfilingCacheMaxTierLimit;
-  }
+  comp_level = MIN3(comp_level, JProfilingCacheMaxTierLimit, (int) TieredStopAtLevel);
   if (CompilationPolicy::can_be_compiled(m, comp_level)) {
       CompileBroker::compile_method(m, bci, comp_level,
                                     methodHandle(), 1,
