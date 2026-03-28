@@ -4135,6 +4135,17 @@ jint Arguments::parse(const JavaVMInitArgs* initial_cmd_args) {
     warning("dependency logging results may be inflated by VerifyDependencies");
   }
 
+#ifdef AARCH64
+  if (NUMANodes != NULL || NUMANodesRandom != 0) {
+    const char* numa_chosen_env = getenv("_JVM_NUMA_BINDING_DONE");
+    if (numa_chosen_env == NULL || strcmp(numa_chosen_env, "1") != 0) {
+      if (!UseNUMA) {
+        UseNUMA = true;
+      }
+    }
+  }
+#endif //AARCH64
+
   apply_debugger_ergo();
 
   if (log_is_enabled(Info, arguments)) {

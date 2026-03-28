@@ -124,7 +124,7 @@ public class TestNUMANodesRandom {
 
         output.shouldHaveExitValue(0);
         output.shouldContain("will select 1 nodes from");
-        output.shouldContain("Successfully bound to 1 node(s)");
+        output.shouldContain("Successfully bound cpu to 1 node(s)");
 
         System.out.println("PASS: Single node random selection works");
     }
@@ -142,7 +142,7 @@ public class TestNUMANodesRandom {
         output.shouldHaveExitValue(0);
         output.shouldContain("will select " + count + " nodes from");
         output.shouldContain("Distance from node");
-        output.shouldContain("Successfully bound to " + count + " node(s)");
+        output.shouldContain("Successfully bound cpu to " + count + " node(s)");
 
         System.out.println("PASS: Multiple nodes random selection works");
     }

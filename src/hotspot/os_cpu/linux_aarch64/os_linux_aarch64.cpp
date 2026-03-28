@@ -392,6 +392,63 @@ static inline void atomic_copy64(const volatile void *src, volatile void *dst) {
 }
 extern char** argv_for_execvp;
 
+static bool is_non_negative_integer(const char* buf, int* res) {
+  julong v;
+  if (!Arguments::atojulong(buf, &v)) {
+    return false;
+  }
+  if (v > INT_MAX) {
+    return false;
+  }
+  *res = (int)v;
+  return true;
+}
+
+static bool parse_bind_policy(const char* policy, const char* &prefix, int &div) {
+  const char* p = policy;
+  while (*p != '\0') {
+    const char* eq = strchr(p, '=');
+    if (!eq) break;
+
+    const char* key = p;
+    int key_len = eq - key;
+    const char* val = eq + 1;
+
+    const char* comma = strchr(val, ',');
+    int val_len = comma ? (comma - val) : (int)strlen(val);
+
+    if (key_len == 6 && strncmp(key, "prefix", 6) == 0) {
+      if (val_len == 0) {
+        if (LogNUMANodes) {
+          warning("NUMABindPolicy: prefix cannot be empty.");
+        }
+        return false;
+      }
+      char* tmp = NEW_C_HEAP_ARRAY(char, val_len + 1, mtInternal);
+      memcpy(tmp, val, val_len);
+      tmp[val_len] = '\0';
+      prefix = tmp;
+    } else if (key_len == 3 && strncmp(key, "div", 3) == 0) {
+      if (!is_non_negative_integer(val, &div) || div == 0) {
+        if (LogNUMANodes) {
+          warning("NUMABindPolicy: div must be a positive integer, got '%s'", val);
+        }
+        return false;
+      }
+    }
+
+    if (!comma) break;
+    p = comma + 1;
+  }
+  if (prefix == NULL || div == 0) {
+    if (LogNUMANodes) {
+      warning("Lack of prefix/div. Feature disabled.");
+    }
+    return false;
+  }
+  return true;
+}
+
 void os::Linux::chose_numa_nodes() {
   const char* numa_chosen_env = getenv("_JVM_NUMA_BINDING_DONE");
   if (numa_chosen_env != NULL && strcmp(numa_chosen_env, "1") == 0) {
@@ -402,6 +459,9 @@ void os::Linux::chose_numa_nodes() {
   }
 
   if (NUMANodes == NULL && NUMANodesRandom == 0) {
+    if (LogNUMANodes) {
+      warning("Numa binding will not work without NUMANodes or NUMANodesRandom.");
+    }
     return;
   }
 
@@ -410,7 +470,9 @@ void os::Linux::chose_numa_nodes() {
   int nodes_num = Linux::numa_max_node() + 1;
   const int MAXNODE = 100;
   if (nodes_num <= 0 || nodes_num >= MAXNODE) {
-    warning("Invalid NUMA nodes number: %d", nodes_num);
+    if (LogNUMANodes) {
+      warning("Invalid NUMA nodes number: %d", nodes_num);
+    }
     return;
   }
 
@@ -525,11 +587,17 @@ void os::Linux::chose_numa_nodes() {
   }
 
   // Determine the number of nodes to be selected
-  int nodes_to_select = NUMANodesRandom;
+  int nodes_to_select_cpu = NUMANodesRandom;
+  int nodes_to_select_mem = NUMAMemNodesRandom;
 
   // If NUMANodesRandom is not set or the value is invalid, use all available nodes
-  if (nodes_to_select <= 0 || nodes_to_select > available_nodes_count) {
-    nodes_to_select = available_nodes_count;
+  if (nodes_to_select_cpu <= 0 || nodes_to_select_cpu > available_nodes_count) {
+    nodes_to_select_cpu = available_nodes_count;
+  }
+
+  // If NUMAMemNodesRandom is invalid, use the same nodes as cpu.
+  if (nodes_to_select_mem < nodes_to_select_cpu || nodes_to_select_mem > available_nodes_count) {
+    nodes_to_select_mem = nodes_to_select_cpu;
   }
 
   if (LogNUMANodes) {
@@ -537,13 +605,67 @@ void os::Linux::chose_numa_nodes() {
       warning("NUMANodes filter applied: %s, available nodes after filter: %d",
               NUMANodes, available_nodes_count);
     }
-    warning("NUMANodesRandom=%lu, will select %d nodes from %d available nodes",
-            NUMANodesRandom, nodes_to_select, available_nodes_count);
+    warning("NUMANodesRandom=%lu, will select %d nodes from %d available nodes for cpu",
+            NUMANodesRandom, nodes_to_select_cpu, available_nodes_count);
+    warning("NUMAMemNodesRandom=%lu, will select %d nodes from %d available nodes for memory",
+            NUMAMemNodesRandom, nodes_to_select_mem, available_nodes_count);
   }
 
-  // Use PID as the random seed
-  int pid = getpid();
-  int start_index = pid % available_nodes_count;
+  const char* policy = NUMABindPolicy;
+  const char* process_prefix = NULL;
+  int process_div = 0;
+
+  int random_number;
+  if (policy != NULL) {
+    if (!parse_bind_policy(policy, process_prefix, process_div)) { 
+      return;
+    }
+
+    if (LogNUMANodes) {
+      warning("NUMABindPolicy: prefix=%s div=%d",
+              process_prefix != NULL ? process_prefix : "<null>",
+              process_div);
+    }
+
+    int i = 0;
+    int prefix_id = -1;
+    while (argv_for_execvp[i] != NULL) {
+      const char* arg = argv_for_execvp[i];
+      if (strcmp(arg, process_prefix) == 0 && argv_for_execvp[i + 1] != NULL) {
+        if (!is_non_negative_integer(argv_for_execvp[i + 1], &prefix_id)) {
+          if (LogNUMANodes) {
+            warning("Invalid prefix id, feature disabled.");
+          }
+          return;
+        }
+        break;
+      }
+      int key_len = strlen(process_prefix);
+      if (strncmp(arg, process_prefix, key_len) == 0 && arg[key_len] == '=') {
+        const char* val = arg + key_len + 1;
+        if (*val == '\0' || !is_non_negative_integer(val, &prefix_id)) {
+          if (LogNUMANodes) {
+            warning("Invalid prefix id, feature disabled.");
+          }
+          return;
+        }
+        break;
+      }
+      i++;
+    }
+    if (prefix_id < 0) {
+      if (LogNUMANodes) {
+        warning("Cannot find corresponding process according to prefix. Feature disabled.");
+      }
+      return;
+    }
+    random_number = prefix_id / process_div;
+  } else {
+    // Use PID as the random seed
+    random_number = getpid();
+  }
+
+  int start_index = random_number % available_nodes_count;
   int start_node = available_nodes[start_index];
 
   // Check whether the starting node can be bound to memory
@@ -572,14 +694,14 @@ void os::Linux::chose_numa_nodes() {
     warning("Start node: %d", start_node);
   }
 
-  // Select nodes: Choose the nearest nodes_to_select node based on distance
+  // Select nodes: Choose the nearest nodes_to_select_cpu/nodes_to_select_mem node based on distance
   int selected_nodes[MAXNODE];
   int selected_count = 0;
 
   // First node is the starting node
   selected_nodes[selected_count++] = start_node;
 
-  if (nodes_to_select == 1) {
+  if (nodes_to_select_mem == 1) {
     if (LogNUMANodes) {
       warning("Selected node %d", start_node);
     }
@@ -589,7 +711,7 @@ void os::Linux::chose_numa_nodes() {
     node_selected[start_node] = true;
 
     // Select the nearest nodes
-    while (selected_count < nodes_to_select) {
+    while (selected_count < nodes_to_select_mem) {
       int nearest_node = -1;
       int min_total_distance = MAX_DISTANCE;
 
@@ -666,7 +788,7 @@ void os::Linux::chose_numa_nodes() {
   }
 
   // Only retain the CPU on the selected node
-  for (int i = 0; i < selected_count; i++) {
+  for (int i = 0; i < MIN2(selected_count, nodes_to_select_cpu); i++) {
     int node_id = selected_nodes[i];
 
     if (_numa_node_to_cpus_v2(node_id, node_cpumask) != 0) {
@@ -693,14 +815,24 @@ void os::Linux::chose_numa_nodes() {
   os::Linux::numa_bitmask_free(node_cpumask);
 
   // Set the bit mask
-  char buf[256] = {0};
-  int buf_pos = 0;
+  char buf_cpu[256] = {0};
+  int pos_cpu = 0;
 
-  for (int i = 0; i < selected_count; i++) {
+  for (int i = 0; i < MIN2(selected_count, nodes_to_select_cpu); i++) {
     if (i > 0) {
-      buf_pos += snprintf(buf + buf_pos, sizeof(buf) - buf_pos, ",");
+      pos_cpu += snprintf(buf_cpu + pos_cpu, sizeof(buf_cpu) - pos_cpu, ",");
     }
-    buf_pos += snprintf(buf + buf_pos, sizeof(buf) - buf_pos, "%d", selected_nodes[i]);
+    pos_cpu += snprintf(buf_cpu + pos_cpu, sizeof(buf_cpu) - pos_cpu, "%d", selected_nodes[i]);
+  }
+
+  char buf_mem[256] = {0};
+  int pos_mem = 0;
+
+  for (int i = 0; i < selected_count; i++) {   // mem uses ALL selected nodes
+    if (i > 0) {
+      pos_mem += snprintf(buf_mem + pos_mem, sizeof(buf_mem) - pos_mem, ",");
+    }
+    pos_mem += snprintf(buf_mem + pos_mem, sizeof(buf_mem) - pos_mem, "%d", selected_nodes[i]);
   }
 
   bitmask* mask = numa_allocate_nodemask();
@@ -709,10 +841,11 @@ void os::Linux::chose_numa_nodes() {
     numa_bitmask_setbit(mask, selected_nodes[i]);  // Set the bit directly
   }
 
-  if (os::Linux::numa_bitmask_equal(mask, os::Linux::_numa_membind_bitmask)) {
+  if (os::Linux::numa_bitmask_equal(mask, os::Linux::_numa_membind_bitmask) &&
+      CPU_EQUAL(&new_cpu_mask, &original_cpu_mask)) {
     os::Linux::numa_bitmask_free(mask);
     if (LogNUMANodes) {
-      warning("Mempolicy is not changed, param: %s", buf);
+      warning("CpuPolicy and Mempolicy is not changed, cpu param: %s, mem param: %s", buf_cpu, buf_mem);
     }
     return;
   }
@@ -732,6 +865,10 @@ void os::Linux::chose_numa_nodes() {
     perror("numa_set_membind");
   }
 
+  if (LogNUMANodes) {
+    warning("Successfully bound mem to %d node(s): %s", selected_count, buf_mem);
+  }
+
   // New CPU affinity
   if (sched_setaffinity(0, sizeof(cpu_set_t), &new_cpu_mask) == -1) {
     perror("sched_setaffinity");
@@ -742,7 +879,7 @@ void os::Linux::chose_numa_nodes() {
   }
 
   if (LogNUMANodes) {
-    warning("Successfully bound to %d node(s): %s", selected_count, buf);
+    warning("Successfully bound cpu to %d node(s): %s", MIN2(selected_count, nodes_to_select_cpu), buf_cpu);
     warning("Final available CPUs:");
     for (int cpu = 0; cpu < cpus_num; cpu++) {
       if (CPU_ISSET(cpu, &new_cpu_mask)) {
