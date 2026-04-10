@@ -1,12 +1,25 @@
-# 欢迎来到JDK！
+# bishengjdk-21
 
-有关构建说明，请参阅
+## Description
 
-[online documentation](https://openjdk.org/groups/build/doc/building.html)
+BiSheng JDK is a high-performance, production-ready downstream distribution of OpenJDK. As the in-house OpenJDK implementation at Huawei, BiSheng JDK runs on more than 500 products within Huawei, accumulating a large number of usage scenarios and problems and demands from java developers, solving many problems encountered in the actual operation of the business, and typically optimized on the ARM architecture. BiSheng JDK is suited for big data applications with high performance. As a "friendly fork" project under the same license as the upstream OpenJDK project, BiSheng JDK continues to contribute to the OpenJDK community all along.
 
-或以下文件之一：
+## Platform
 
-- [doc/building.html](doc/building.html) (html version)
-- [doc/building.md](doc/building.md) (markdown version)
+BiSheng JDK currently supports `Linux/AArch64, Linux/x86_64`.
 
-有关OpenJDK社区和JDK的更多信息，请参阅<https://openjdk.org/>有关JDK问题跟踪，请参阅<https://bugs.openjdk.org>。
+## Build platforms
+
+See the [BiSheng JDK 21 Source Code Building Description](https://gitcode.com/openeuler/bishengjdk-21/wiki/English%20Documentation%2FBiSheng%20JDK%2021%20Source%20Code%20Building%20Description.md).
+
+## License
+
+BiSheng JDK is licensed under GPLv2 with Classpath Exception. For the details, see [License](https://gitcode.com/openeuler/bishengjdk-21/blob/master/LICENSE).
+
+## Installation
+
+See the [Installation Guide](https://gitcode.com/openeuler/bishengjdk-21/wiki/English%20Documentation%2FBiShengJDK21_Installation_Guide.md).
+
+## How to contribute
+
+Contributions are welcomed. Please [send an email to dev](https://openeuler.org/zh/community/mailing-list) or [create a new issue](https://gitcode.com/openeuler/bishengjdk-21/issues) if you find a bug or have new ideas.
