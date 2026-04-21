@@ -34,8 +34,31 @@ import jdk.test.lib.process.ProcessTools;
 import jdk.test.lib.process.OutputAnalyzer;
 
 public class TestNUMABindPolicy {
+    private static int getNUMANodeCount() {
+        try {
+            String content = new String(java.nio.file.Files.readAllBytes(
+                java.nio.file.Paths.get("/sys/devices/system/node/possible")));
+            // "0-1" or "0-3"
+            String[] parts = content.trim().split("-");
+            if (parts.length == 2) {
+                int maxNode = Integer.parseInt(parts[1]);
+                return maxNode + 1;
+            }
+        } catch (Exception e) {
+        }
+        return 0;
+    }
+
     static void runAndCheckWithEqual(int mem, String policy, String prefix, boolean isSuccess, String expectedOut) throws Exception {
         int cpu = 2;
+
+        int neededNodes = Math.max(cpu, mem);
+        int actualNodes = getNUMANodeCount();
+        if (actualNodes <= neededNodes) {
+            System.out.println("Skipping test: Need more than " + neededNodes +
+                             " NUMA nodes, but only " + actualNodes + " available");
+            return;
+        }
 
         OutputAnalyzer out = ProcessTools.executeTestJava(
                 "-XX:+UseNUMA",
